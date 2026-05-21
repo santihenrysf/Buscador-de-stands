@@ -40,6 +40,7 @@ export default function App() {
   const GOOGLE_DRIVE_ID = "1hTfK4paxx0bvFYB2sttsMR9KxxPO5P7t";
   const IMAGE_SOURCES = useMemo(() => {
     return [
+      "https://framerusercontent.com/images/xkwulyGlb97P4hnU3jddgaBoVXk.png?scale-down-to=4096&width=6000&height=4246",
       `https://lh3.googleusercontent.com/d/${GOOGLE_DRIVE_ID}`,
       `https://docs.google.com/uc?export=view&id=${GOOGLE_DRIVE_ID}`,
       `https://drive.google.com/uc?export=view&id=${GOOGLE_DRIVE_ID}`,
