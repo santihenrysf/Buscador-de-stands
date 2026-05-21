@@ -20,6 +20,18 @@
   background-size: 24px 24px;
 }
 
+/* Sharp rendering for maps and technical layouts under high zoom */
+.sharp-map-image {
+  image-rendering: -webkit-optimize-contrast; /* Webkit (Safari, Chrome) key boost for text & lines */
+  image-rendering: crisp-edges;               /* Modern standards - avoid bilinear blur */
+  image-rendering: -moz-crisp-edges;          /* Firefox crisp edges */
+  image-rendering: pixelated;                 /* Chromium fallback at extremely high scale */
+  -ms-interpolation-mode: nearest-neighbor;  /* Legacy IE scaling */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);                    /* Force GPU hardware rendering for fluid motion & crispness */
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

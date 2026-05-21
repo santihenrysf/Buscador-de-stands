@@ -117,7 +117,7 @@ export default function App() {
 
     const zone = getZoneByExpositor(expo);
     if (zone) {
-      const zoom = 2.2; // Bring user closer to the selected stand
+      const zoom = 4.2; // Bring user closer to the selected stand (Increased from 2.2 to 4.2 for maximum zoom details)
       setZoomLevel(zoom);
       
       const cx = zone.x + zone.w / 2;
@@ -147,9 +147,19 @@ export default function App() {
     setSelectedExpositor(null);
   };
 
-  // Zoom controls
-  const handleZoomIn = () => setZoomLevel(prev => Math.min(prev + 0.3, 3.5));
-  const handleZoomOut = () => setZoomLevel(prev => Math.max(prev - 0.3, 0.8));
+  // Zoom controls (increased limit to 8.0 and steps to 0.6)
+  const handleZoomIn = () => setZoomLevel(prev => Math.min(prev + 0.6, 8.0));
+  const handleZoomOut = () => setZoomLevel(prev => Math.max(prev - 0.6, 0.6));
+
+  // Wheel zoom controls for mouse hovering
+  const handleWheel = (e: React.WheelEvent) => {
+    const zoomFactor = 1.12;
+    if (e.deltaY < 0) {
+      setZoomLevel(prev => Math.min(prev * zoomFactor, 8.0));
+    } else {
+      setZoomLevel(prev => Math.max(prev / zoomFactor, 0.6));
+    }
+  };
 
   // Map dragging handlers (Pan)
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -436,24 +446,24 @@ export default function App() {
 
           {/* Exhibition Map */}
           <section className={`md:col-span-7 flex flex-col gap-4 order-1 md:order-2 ${activeTab === 'map' ? 'block' : 'hidden md:flex'}`}>
-            <div className="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-5 flex flex-col w-full overflow-hidden relative shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-2xl flex flex-col w-full overflow-hidden relative shadow-sm">
               
               {/* Sector Legend Header */}
-              <div className="flex flex-wrap gap-x-4 gap-y-2 text-[11px] sm:text-xs font-semibold text-slate-600 justify-center sm:justify-start items-center mb-3.5 border-b border-slate-100 pb-2.5 z-10 shrink-0 select-none">
+              <div className="flex flex-wrap gap-x-4 gap-y-2 text-[11px] sm:text-xs font-semibold text-slate-600 justify-center sm:justify-start items-center border-b border-slate-100 p-4 sm:px-5 sm:py-3.5 z-10 shrink-0 select-none bg-slate-50/50">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm bg-red-400 border border-slate-200 shrink-0 inline-block" />
+                  <span className="w-2.5 h-2.5 rounded-sm bg-red-400 border border-slate-200 shrink-0 inline-block" />
                   <span>Hall Principal (Interior)</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm bg-pink-400 border border-slate-200 shrink-0 inline-block" />
+                  <span className="w-2.5 h-2.5 rounded-sm bg-pink-400 border border-slate-200 shrink-0 inline-block" />
                   <span>Pabellón Argentina</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm bg-blue-400 border border-slate-200 shrink-0 inline-block" />
+                  <span className="w-2.5 h-2.5 rounded-sm bg-blue-400 border border-slate-200 shrink-0 inline-block" />
                   <span>Pabellón CECOEL</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-sm bg-orange-400 border border-slate-200 shrink-0 inline-block" />
+                  <span className="w-2.5 h-2.5 rounded-sm bg-orange-400 border border-slate-200 shrink-0 inline-block" />
                   <span>Área Exterior</span>
                 </span>
               </div>
@@ -461,63 +471,65 @@ export default function App() {
               {/* Selected Expositor Bottom Status Ticket (Rendered directly ABOVE the map grid so it's perfectly screenshotable at the very top!) */}
               <AnimatePresence>
                 {selectedExpositor && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0, marginBottom: 0 }}
-                    animate={{ height: "auto", opacity: 1, marginBottom: 12 }}
-                    exit={{ height: 0, opacity: 0, marginBottom: 0 }}
-                    className="bg-brand-light border border-brand/20 rounded-xl p-3 shadow-sm select-none"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="text-left">
-                        <span className="text-[9px] bg-brand text-white font-mono font-extrabold uppercase px-2 py-0.5 rounded">
-                          Sector: {selectedExpositor.pabellon.replace('Salón Principal (Interior)', 'Hall Principal')}
-                        </span>
-                        <h4 className="font-extrabold text-sm text-slate-900 mt-2 pr-1 font-sans">
-                          {selectedExpositor.empresa}
-                        </h4>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          Ubicado en el <span className="text-brand font-mono font-extrabold">{selectedExpositor.standText}</span>
-                        </p>
+                  <div className="px-4 sm:px-5 pt-3.5 select-none">
+                    <motion.div
+                      initial={{ height: 0, opacity: 0, marginBottom: 0 }}
+                      animate={{ height: "auto", opacity: 1, marginBottom: 12 }}
+                      exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+                      className="bg-brand-light border border-brand/20 rounded-xl p-3 shadow-sm select-none"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="text-left">
+                          <span className="text-[9px] bg-brand text-white font-mono font-extrabold uppercase px-2 py-0.5 rounded">
+                            Sector: {selectedExpositor.pabellon.replace('Salón Principal (Interior)', 'Hall Principal')}
+                          </span>
+                          <h4 className="font-extrabold text-sm text-slate-900 mt-2 pr-1 font-sans">
+                            {selectedExpositor.empresa}
+                          </h4>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            Ubicado en el <span className="text-brand font-mono font-extrabold">{selectedExpositor.standText}</span>
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={() => handleSelectExpositor(selectedExpositor)}
+                            className="bg-white hover:bg-brand/5 active:bg-brand/10 text-brand text-[10px] font-bold px-2 py-1 rounded-lg border border-brand/20 transition cursor-pointer"
+                          >
+                            Recentrar
+                          </button>
+                          <button
+                            onClick={() => setSelectedExpositor(null)}
+                            className="bg-white hover:bg-slate-100 text-slate-400 hover:text-slate-600 p-1 rounded-lg border border-slate-200 transition cursor-pointer"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
-                      
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          onClick={() => handleSelectExpositor(selectedExpositor)}
-                          className="bg-white hover:bg-brand/5 active:bg-brand/10 text-brand text-[10px] font-bold px-2 py-1 rounded-lg border border-brand/20 transition cursor-pointer"
-                        >
-                          Recentrar
-                        </button>
-                        <button
-                          onClick={() => setSelectedExpositor(null)}
-                          className="bg-white hover:bg-slate-100 text-slate-400 hover:text-slate-600 p-1 rounded-lg border border-slate-200 transition cursor-pointer"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
 
-                    {/* Neighboring stands shown right here inside the clean info box */}
-                    {neighbors.length > 0 && (
-                      <div className="mt-2.5 pt-2 border-t border-brand/10 text-left">
-                        <div className="text-[9px] text-slate-405 uppercase font-mono tracking-wider mb-1.5 flex items-center gap-1">
-                          <Eye className="w-3 h-3 text-brand" />
-                          <span>Marcas adyacentes en el mismo bloque:</span>
+                      {/* Neighboring stands shown right here inside the clean info box */}
+                      {neighbors.length > 0 && (
+                        <div className="mt-2.5 pt-2 border-t border-brand/10 text-left">
+                          <div className="text-[9px] text-slate-405 uppercase font-mono tracking-wider mb-1.5 flex items-center gap-1">
+                            <Eye className="w-3 h-3 text-brand" />
+                            <span>Marcas adyacentes en el mismo bloque:</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {neighbors.map(n => (
+                              <button
+                                key={n.id}
+                                onClick={() => handleSelectExpositor(n)}
+                                className="text-[9px] bg-white hover:bg-slate-50 border border-slate-150 text-slate-600 px-2.5 py-0.5 rounded transition max-w-[130px] truncate cursor-pointer font-medium"
+                                title={n.empresa}
+                              >
+                                {n.empresa}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-1">
-                          {neighbors.map(n => (
-                            <button
-                              key={n.id}
-                              onClick={() => handleSelectExpositor(n)}
-                              className="text-[9px] bg-white hover:bg-slate-50 border border-slate-150 text-slate-600 px-2.5 py-0.5 rounded transition max-w-[130px] truncate cursor-pointer font-medium"
-                              title={n.empresa}
-                            >
-                              {n.empresa}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
+                      )}
+                    </motion.div>
+                  </div>
                 )}
               </AnimatePresence>
 
@@ -563,7 +575,8 @@ export default function App() {
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleMouseUpOrLeave}
-                className="w-full aspect-[1.413] relative bg-slate-100 rounded-xl border border-slate-200 overflow-hidden cursor-grab active:cursor-grabbing select-none"
+                onWheel={handleWheel}
+                className="w-full aspect-[1.413] relative bg-slate-100 rounded-b-2xl border-t border-slate-200/80 overflow-hidden cursor-grab active:cursor-grabbing select-none"
               >
                 
                 {/* Map Scaler Grid */}
@@ -580,7 +593,7 @@ export default function App() {
                     onError={handleImageError}
                     alt="Plano Constructecnia 2026"
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-fill pointer-events-none select-none max-w-none filter brightness-95"
+                    className="w-full h-full object-fill pointer-events-none select-none max-w-none filter brightness-95 sharp-map-image"
                     style={{ minWidth: '100%', minHeight: '100%' }}
                   />
 
@@ -686,31 +699,31 @@ export default function App() {
                     })}
                   </svg>
                 </div>
-              </div>
 
-              {/* Map Actions Bottom Controls */}
-              <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-center gap-4">
-                <button
-                  onClick={handleZoomIn}
-                  title="Acercar plano"
-                  className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center bg-slate-100 hover:bg-brand/5 border border-slate-300 hover:border-brand/35 active:bg-brand/10 text-slate-800 hover:text-brand transition rounded-2xl shadow-sm cursor-pointer"
-                >
-                  <ZoomIn className="w-6 h-6 sm:w-7 sm:h-7 text-brand shrink-0" />
-                </button>
-                <button
-                  onClick={handleZoomOut}
-                  title="Alejar plano"
-                  className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center bg-slate-100 hover:bg-brand/5 border border-slate-300 hover:border-brand/35 active:bg-brand/10 text-slate-800 hover:text-brand transition rounded-2xl shadow-sm cursor-pointer"
-                >
-                  <ZoomOut className="w-6 h-6 sm:w-7 sm:h-7 text-brand shrink-0" />
-                </button>
-                <button
-                  onClick={handleResetMap}
-                  title="Reiniciar vista"
-                  className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center bg-slate-100 hover:bg-brand/5 border border-slate-300 hover:border-brand/35 active:bg-brand/10 text-slate-800 hover:text-brand transition rounded-2xl shadow-sm cursor-pointer"
-                >
-                  <RotateCcw className="w-6 h-6 sm:w-7 sm:h-7 text-brand shrink-0" />
-                </button>
+                {/* Floating Actions Panel inside the Map Canvas */}
+                <div className="absolute bottom-4 right-4 z-20 flex flex-col p-1 bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/80 shadow-md">
+                  <button
+                    onClick={handleZoomIn}
+                    title="Acercar plano"
+                    className="w-9 h-9 flex items-center justify-center text-slate-700 hover:text-brand hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <ZoomIn className="w-5 h-5 shrink-0" />
+                  </button>
+                  <button
+                    onClick={handleZoomOut}
+                    title="Alejar plano"
+                    className="w-9 h-9 flex items-center justify-center text-slate-700 hover:text-brand hover:bg-slate-100 rounded-lg transition-colors border-t border-b border-slate-100 my-0.5 cursor-pointer"
+                  >
+                    <ZoomOut className="w-5 h-5 shrink-0" />
+                  </button>
+                  <button
+                    onClick={handleResetMap}
+                    title="Reiniciar vista"
+                    className="w-9 h-9 flex items-center justify-center text-slate-700 hover:text-brand hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-4 h-4 shrink-0" />
+                  </button>
+                </div>
               </div>
             </div>
           </section>
