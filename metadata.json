@@ -1,0 +1,6 @@
+{
+  "name": "Buscador de Stands Constructecnia",
+  "description": "Buscador interactivo y ubicador de stands de expositores para la feria internacional Constructecnia 2026",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
